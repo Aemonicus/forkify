@@ -100,7 +100,10 @@ const controlRecipe = async () => {
 
       // Render recipe
       clearLoader()
-      recipeView.renderRecipe(state.recipe, state.likes.isLiked(id))
+      recipeView.renderRecipe(
+        state.recipe,
+        state.likes.isLiked(id)
+      )
 
     } catch (err) {
       alert("Error processing recipe!")
@@ -187,6 +190,20 @@ const controlLike = () => {
   }
   likesView.toggleLikeMenu(state.likes.getNumLikes())
 }
+
+// Restore liked recipes on page load
+window.addEventListener("load", () => {
+  state.likes = new Likes()
+
+  // Restore likes from localStorage
+  state.likes.readStorage()
+
+  // Toggle like menu button
+  likesView.toggleLikeMenu(state.likes.getNumLikes())
+
+  // Render existing likes in menu
+  state.likes.likes.forEach(like => likesView.renderLike(like))
+})
 
 // Handling recipe button clicks
 elements.recipe.addEventListener("click", e => {
