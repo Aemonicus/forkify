@@ -13,9 +13,11 @@ import { elements, renderLoader, clearLoader } from "./views/base"
 const state = {}
 
 
-/**
+
+/*****
  * SEARCH CONTROLLER
- */
+ ****/
+
 const controlSearch = async () => {
   // Get query from view
   const query = searchView.getInput()
@@ -29,13 +31,17 @@ const controlSearch = async () => {
     searchView.clearResults()
     // renderLoader(elements.searchRes) need to change the loader icon
 
-    // Search for recipes
-    await state.search.getResults()
+    try {
+      // Search for recipes
+      await state.search.getResults()
 
-    // Render results on UI
-    clearLoader()
-    searchView.renderResults(state.search.result)
-
+      // Render results on UI
+      clearLoader()
+      searchView.renderResults(state.search.result)
+    } catch (err) {
+      alert("Something went wrong with the search")
+      clearLoader()
+    }
   }
 }
 elements.searchForm.addEventListener("submit", e => {
@@ -54,10 +60,36 @@ elements.searchResPages.addEventListener('click', e => {
 })
 
 
-/**
+/*****
  * RECIPE CONTROLLER
- */
-const r = new Recipe("0fb8f4")
+ ****/
 
-r.getRecipe()
-console.log("r", r)
+const controlRecipe = async () => {
+  // Get ID from url
+  const id = window.location.hash.replace("#", "")
+  console.log(id)
+
+  if (id) {
+    // Prepare UI for changes
+
+    // Create new recipe object
+    state.recipe = new Recipe(id)
+
+    try {
+      // Get recipe data
+      await state.recipe.getRecipe()
+
+      // Calculate servings and time
+      state.recipe.calcTime()
+      state.recipe.calcServings()
+
+      // Render recipe
+      console.log(state.recipe)
+    } catch (err) {
+      alert("Error processing recipe!")
+    }
+
+  }
+}
+
+["hashchange", "load"].forEach(event => window.addEventListener(event, controlRecipe))
